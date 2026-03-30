@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JURIS QUEST: TRUE SOUL</title>
+    <title>JURIS QUEST: FLOWREY</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        :root { --red: #ff0000; --white: #ffffff; --black: #000000; --gold: #ffff00; --orange: #ff9d00; }
+        :root { --red: #ff0000; --white: #ffffff; --black: #000000; --gold: #ffff00; --orange: #ff9d00; --green: #00ff00; }
         * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
         body, html { background: var(--black); color: var(--white); font-family: 'Press Start 2P', cursive; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         
-        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; min-height: 80px; line-height: 1.6; }
+        /* THE FLOWER ANIMATION */
+        .flower-container { display: flex; align-items: center; gap: 20px; margin-bottom: 10px; }
+        .flower { font-size: 50px; animation: sway 2s infinite ease-in-out; filter: drop-shadow(0 0 5px var(--white)); }
+        @keyframes sway { 0%, 100% { transform: rotate(-5deg) scale(1); } 50% { transform: rotate(5deg) scale(1.1); } }
+
+        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; min-height: 80px; line-height: 1.6; position: relative; }
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .active { display: flex; }
         
@@ -20,10 +25,10 @@
 
         .task-list { width: 90%; max-width: 400px; margin: 15px 0; }
         .task { padding: 10px; display: flex; align-items: center; font-size: 10px; }
-        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--red); }
+        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--green); }
 
         #gate-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
-        .door { position: absolute; width: 50%; height: 100%; background: #080808; border: 2px solid var(--red); transition: 1.2s cubic-bezier(0.7, 0, 0.3, 1); }
+        .door { position: absolute; width: 50%; height: 100%; background: #080808; border: 2px solid var(--white); transition: 1.2s cubic-bezier(0.7, 0, 0.3, 1); }
         .left { left: 0; } .right { right: 0; }
         .open .left { transform: translateX(-100%); }
         .open .right { transform: translateX(100%); }
@@ -34,31 +39,37 @@
 </head>
 <body>
 
-    <div id="loader" class="screen active"><div style="color:var(--gold)">CONNECTING TO SOUL...</div></div>
+    <div id="loader" class="screen active"><div style="color:var(--gold)">PLANTING THE SEEDS...</div></div>
 
     <div id="s1" class="screen">
+        <div class="flower-container">
+            <div class="flower">🌻</div>
+            <div style="font-size: 12px; color: var(--green);">FLOWREY</div>
+        </div>
         <div class="box" id="t1"></div>
-        <div id="countdown" style="color:var(--red); font-size:10px; margin-bottom:10px;"></div>
+        <div id="countdown" style="color: var(--red); font-size: 10px; margin-bottom: 10px;"></div>
         <button class="btn" onclick="startApp()">[ ❤️ START ]</button>
     </div>
 
     <div id="s2" class="screen">
-        <div class="box" id="t2">* Today's tasks appear...</div>
+        <div class="box" id="t2">* (You see your tasks... they look friendly.)</div>
         <div class="task-list" id="live-tasks"></div>
         <div id="save-zone" style="display:none; text-align:center; margin:10px;">
-            <div style="color:var(--gold); font-size:20px; cursor:pointer;" onclick="doSave()">⭐ SAVE</div>
+            <div style="color:var(--gold); font-size:16px; cursor:pointer;" onclick="doSave()">⭐ [ SAVE ]</div>
         </div>
         <button class="btn locked" id="fight-btn" onclick="go('s3')">[ ❤️ FIGHT ]</button>
     </div>
 
     <div id="s3" class="screen">
-        <div class="box" id="t3">* The Guardian demands the passkey.</div>
-        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:var(--red); font-family:'Press Start 2P'; text-align:center; width:80%; outline:none; margin:20px;" placeholder="ENTER CODE">
+        <div class="flower">🌻</div>
+        <div class="box" id="t3">* Howdy! Enter the passkey to proceed!</div>
+        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:var(--white); font-family:'Press Start 2P'; text-align:center; width:80%; outline:none; margin:20px;" placeholder="CODE">
         <button class="btn" onclick="doVerify()">[ ❤️ VERIFY ]</button>
     </div>
 
     <div id="s4" class="screen">
-        <div class="box" id="t4">* You survived. The thought of Oxford fills you with determination.</div>
+        <div class="flower">🌻</div>
+        <div class="box" id="t4">* Golly! You actually did it!</div>
         <button class="btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
 
@@ -66,12 +77,12 @@
 
     <script>
         // --- PASTE YOUR CSV URL HERE ---
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX_HtgHl5hdoE4xC8GvJyO6Ag5n5LJhowfL5IhDHmmlQSc3UXcG5-7o5SGU2IBZNRb9WFFkusp4CG1/pub?output=csv"; 
+        const SHEET_URL = "YOUR_CSV_URL_HERE"; 
         
         let audioCtx = null;
-        let liveData = { key: "LOADING..." };
+        let liveData = { key: "" };
 
-        function snd(f, type="square", d=0.1, v=0.05) {
+        function snd(f, type="square", d=0.1, v=0.04) {
             if (!audioCtx) audioCtx = new AudioContext();
             let o = audioCtx.createOscillator();
             let g = audioCtx.createGain();
@@ -87,10 +98,11 @@
             let timer = setInterval(() => {
                 if (i < txt.length) {
                     el.innerHTML += txt[i];
-                    if (txt[i] !== " ") snd(150, "square", 0.05, 0.03);
+                    // Flowrey has a slightly higher pitched voice chirp
+                    if (txt[i] !== " ") snd(400, "sine", 0.04, 0.03);
                     i++;
                 } else { clearInterval(timer); }
-            }, 40);
+            }, 50);
         }
 
         async function fetchData() {
@@ -101,12 +113,12 @@
                 liveData = { t1: row[0], t2: row[1], t3: row[2], key: row[3].trim().toUpperCase(), msg: row[4], exam: row[5] };
                 document.getElementById('loader').style.display = 'none';
                 go('s1');
-                type('t1', `* DRAGON: ${liveData.msg}`);
-                document.getElementById('countdown').innerHTML = `DAYS TO EXAM: ${liveData.exam}`;
-            } catch (e) { document.getElementById('loader').innerHTML = "CONNECTION FAILED."; }
+                type('t1', `* Howdy! I'm FLOWREY!\n* ${liveData.msg}`);
+                document.getElementById('countdown').innerHTML = `DAYS UNTIL HARVEST: ${liveData.exam}`;
+            } catch (e) { document.getElementById('loader').innerHTML = "SOUL DISCONNECTED."; }
         }
 
-        function startApp() { snd(440, "sine", 0.1); go('s2'); type('t2', "* Finish the scrolls to SAVE."); renderTasks(); }
+        function startApp() { snd(523.25, "sine", 0.1); go('s2'); type('t2', "* Don't keep the future waiting, pal!"); renderTasks(); }
 
         function renderTasks() {
             document.getElementById('live-tasks').innerHTML = `
@@ -117,7 +129,7 @@
                 c.onchange = () => {
                     let all = Array.from(document.querySelectorAll('.chk')).every(x => x.checked);
                     document.getElementById('save-zone').style.display = all ? 'block' : 'none';
-                    if(all) snd(600, "sine", 0.1);
+                    if(all) snd(880, "sine", 0.1);
                 };
             });
         }
@@ -128,22 +140,22 @@
         }
 
         function doSave() {
-            snd(880, "square", 0.1); setTimeout(() => snd(1100, "square", 0.15), 100);
+            snd(659, "square", 0.1); setTimeout(() => snd(880, "square", 0.2), 100);
             document.getElementById('fight-btn').classList.remove('locked');
             document.getElementById('save-zone').innerHTML = "<div style='color:var(--gold)'>PROGRESS SAVED.</div>";
-            type('t2', "* You are filled with determination.");
+            type('t2', "* You're filled with DETERMINATION.");
         }
 
         function doVerify() {
             let input = document.getElementById('ans').value.trim().toUpperCase();
-            if (input === "") return; // Stops empty clicks
+            if (input === "") return;
             if (input === liveData.key) {
                 snd(1000, "sine", 0.5);
                 let w = document.getElementById('gate-wrap');
                 w.style.display = "block";
-                setTimeout(() => { w.classList.add('open'); go('s4'); type('t4', "* The Dragon acknowledges your strength."); }, 100);
+                setTimeout(() => { w.classList.add('open'); go('s4'); type('t4', "* See? I knew you could do it!"); }, 100);
             } else {
-                snd(100, "sawtooth", 0.3);
+                snd(150, "sawtooth", 0.3);
                 document.getElementById('s3').classList.add('shake');
                 setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
             }
