@@ -10,20 +10,20 @@
         * { cursor: crosshair; }
         body, html { background: var(--black); color: var(--white); font-family: 'Press Start 2P', cursive; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         
-        /* FIXED PIXEL FLOWER (Stored inside the code) */
+        /* FIXED PIXEL FLOWER */
         .flowrey-sprite {
-            width: 120px; height: 120px;
+            width: 100px; height: 100px;
             background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAMklEQVQ4T2P8////fwYgYGRkxCHJCKMZByuG6UAnYBoasGlgwKCBAYMGBmwa0MFAVzMAtZ8mBe96D0IAAAAASUVORK5CYII=');
             background-size: contain; background-repeat: no-repeat; background-position: center;
-            margin-bottom: 10px; animation: bob 2s infinite ease-in-out; image-rendering: pixelated;
+            margin-bottom: 10px; animation: bob 2.5s infinite ease-in-out; image-rendering: pixelated;
         }
-        @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes bob { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-12px) rotate(2deg); } }
 
         .box { border: 4px solid var(--white); padding: 20px; width: 85%; max-width: 450px; background: var(--black); min-height: 100px; line-height: 1.6; margin-top: 10px; z-index: 5; }
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .active { display: flex; }
         
-        .btn { border: 2px solid var(--orange); background: none; color: var(--orange); padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin: 10px; }
+        .btn { border: 2px solid var(--orange); background: none; color: var(--orange); padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin: 10px; text-transform: uppercase; }
         .btn:hover { background: var(--white); color: var(--black); }
         .locked { opacity: 0.2; cursor: not-allowed; }
 
@@ -43,29 +43,29 @@
 </head>
 <body>
 
-    <div id="loader" class="screen active"><div>PREPARING...</div></div>
+    <div id="loader" class="screen active"><div>FETCHING SOUL DATA...</div></div>
 
     <div id="s1" class="screen">
         <div class="flowrey-sprite"></div>
         <div class="box" id="t1"></div>
         <div id="countdown" style="color: var(--red); font-size: 10px; margin: 10px;"></div>
-        <button class="btn" onclick="startApp()">[ SHAW ! ]</button>
+        <button class="btn" onclick="startApp()">[ ❤️ START ]</button>
     </div>
 
     <div id="s2" class="screen">
-        <div class="box" id="t2">* (Tasks remain...)</div>
+        <div class="box" id="t2">* (Determine your path.)</div>
         <div class="task-list" id="live-tasks"></div>
         <div id="save-zone" style="display:none; margin:10px;">
             <button class="btn" style="color:var(--gold); border-color:var(--gold);" onclick="doSave()">⭐ [ SAVE ]</button>
         </div>
-        <button class="btn locked" id="fight-btn" onclick="go('s3')">[ HEGALE ]</button>
+        <button class="btn locked" id="fight-btn" onclick="go('s3')">[ ❤️ FIGHT ]</button>
     </div>
 
     <div id="s3" class="screen">
         <div class="flowrey-sprite"></div>
         <div class="box" id="t3"></div>
-        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:white; font-family:'Press Start 2P'; text-align:center; width:70%; outline:none; margin:20px;">
-        <button class="btn" onclick="doVerify()">[ SCARED? ]</button>
+        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:white; font-family:'Press Start 2P'; text-align:center; width:70%; outline:none; margin:20px;" placeholder="CODE">
+        <button class="btn" onclick="doVerify()">[ ❤️ VERIFY ]</button>
     </div>
 
     <div id="s4" class="screen">
@@ -77,19 +77,19 @@
     <div id="gate-wrap"><div class="door left"></div><div class="door right"></div></div>
 
     <script>
-        // --- YOUR GOOGLE SHEET CSV URL HERE ---
+        // --- 1. PASTE YOUR GOOGLE SHEET CSV URL HERE ---
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX_HtgHl5hdoE4xC8GvJyO6Ag5n5LJhowfL5IhDHmmlQSc3UXcG5-7o5SGU2IBZNRb9WFFkusp4CG1/pub?output=csv"; 
         
         let audioCtx = null;
-        let liveData = { key: "HI", t1: "Task 1", t2: "Task 2", t3: "Task 3", msg: "Keep going!", exam: "???" };
+        let liveData = { key: "HI", t1: "Task 1", t2: "Task 2", t3: "Task 3", msg: "Loading...", exam: "?", win: "Good job!" };
 
-        function snd(f, d=0.05) {
+        function snd(f, type="sine", d=0.05, v=0.02) {
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 let o = audioCtx.createOscillator();
                 let g = audioCtx.createGain();
-                o.type = "sine"; o.frequency.value = f;
-                g.gain.setValueAtTime(0.02, audioCtx.currentTime);
+                o.type = type; o.frequency.value = f;
+                g.gain.setValueAtTime(v, audioCtx.currentTime);
                 g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + d);
                 o.connect(g); g.connect(audioCtx.destination);
                 o.start(); o.stop(audioCtx.currentTime + d);
@@ -97,24 +97,34 @@
         }
 
         function typeText(id, txt) {
-            let i = 0; let el = document.getElementById(id);
-            el.innerHTML = "";
+            let i = 0; let el = document.getElementById(id); el.innerHTML = "";
             let timer = setInterval(() => {
                 if (i < txt.length) {
                     el.innerHTML += txt[i];
-                    if (txt[i] !== " ") snd(400);
+                    if (txt[i] !== " ") snd(380, "sine", 0.05, 0.02);
                     i++;
                 } else { clearInterval(timer); }
-            }, 40);
+            }, 45);
         }
 
         async function fetchData() {
             try {
                 const res = await fetch(SHEET_URL);
                 const text = await res.text();
-                const row = text.split('\n')[1].split(',');
-                liveData = { t1: row[0], t2: row[1], t3: row[2], key: row[3].trim().toUpperCase(), msg: row[4], exam: row[5] };
-            } catch (e) { console.log("Using Default Data"); }
+                // Splitting CSV rows and getting the second row (Index 1)
+                const rows = text.split('\n');
+                const col = rows[1].split(',');
+                
+                liveData = { 
+                    t1: col[0], 
+                    t2: col[1], 
+                    t3: col[2], 
+                    key: col[3].trim().toUpperCase(), 
+                    msg: col[4], 
+                    exam: col[5],
+                    win: col[6] // Column G
+                };
+            } catch (e) { console.log("Spreadsheet error - check URL"); }
             
             document.getElementById('loader').style.display = 'none';
             go('s1');
@@ -122,7 +132,7 @@
             document.getElementById('countdown').innerHTML = `EXAM IN: ${liveData.exam} DAYS`;
         }
 
-        function startApp() { snd(500, 0.1); go('s2'); renderTasks(); }
+        function startApp() { snd(523, "sine", 0.1); go('s2'); renderTasks(); }
 
         function renderTasks() {
             document.getElementById('live-tasks').innerHTML = `
@@ -133,6 +143,7 @@
                 c.onchange = () => {
                     let all = Array.from(document.querySelectorAll('.chk')).every(x => x.checked);
                     document.getElementById('save-zone').style.display = all ? 'block' : 'none';
+                    if(all) snd(880, "sine", 0.1);
                 };
             });
         }
@@ -140,25 +151,27 @@
         function go(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'flex';
-            if(id === 's3') typeText('t3', "* Golly, you need a key for this door!");
-            if(id === 's4') typeText('t4', "* See? Hard work pays off!");
+            if(id === 's3') typeText('t3', "* Golly! You need the secret key to pass!");
+            if(id === 's4') typeText('t4', `* ${liveData.win}`);
         }
 
         function doSave() {
-            snd(600, 0.2);
+            snd(659, "square", 0.1); setTimeout(() => snd(880, "square", 0.15), 100);
             document.getElementById('fight-btn').classList.remove('locked');
             document.getElementById('save-zone').innerHTML = "* Progress Saved.";
+            typeText('t2', "* You are filled with DETERMINATION.");
         }
 
         function doVerify() {
             let val = document.getElementById('ans').value.trim().toUpperCase();
             if (val === "") return;
             if (val === liveData.key) {
+                snd(1000, "sine", 0.5);
                 let w = document.getElementById('gate-wrap');
                 w.style.display = "block";
                 setTimeout(() => { w.classList.add('open'); go('s4'); }, 100);
             } else {
-                snd(100, 0.3);
+                snd(150, "sawtooth", 0.3);
                 document.getElementById('s3').classList.add('shake');
                 setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
                 document.getElementById('ans').value = "";
