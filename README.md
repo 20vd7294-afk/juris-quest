@@ -7,11 +7,11 @@ Tracking daily quests, LNAT experience points, and Jurisprudence mastery on the 
 
 ## 🎭 THE DRAGON'S GREETING
 ```text
-          ______
-        _/      \
-       / u  u    \       "Halt, mortal! I am the Guardian of the 
-      |    --    |        Oxford Vault. You seek the ancient 
-      |   ____   |        knowledge of Jurisprudence? Prove your 
-       \________/         worth through the Daily Quests, or 
-         |    |           suffer the flame of procrastination!"
-        /      \
+          
+              
+                         "Halt, mortal! I am the Guardian of the 
+                          Oxford Vault. You seek the ancient 
+                          knowledge of Jurisprudence? Prove your 
+                          worth through the Daily Quests, or 
+                          suffer the flame of procrastination!"
+                                        *SHAW!*      
