@@ -11,26 +11,26 @@
         * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
         body, html { background: var(--black); color: var(--white); font-family: 'Press Start 2P', cursive; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         
-        /* FLOWREY SPRITE STYLE */
+        /* THE PIXEL FLOWREY SPRITE */
         .flowrey-sprite {
-            width: 100px;
-            height: 100px;
-            background-image: url('https://i.imgur.com/8MInM4I.png'); /* This is the sprite you uploaded */
+            width: 120px;
+            height: 120px;
+            background-image: url('https://utdr-builds.github.io/assets/sprites/flowey/spr_flowey_nice_0.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
             animation: sway 3s infinite ease-in-out;
-            image-rendering: pixelated;
+            image-rendering: pixelated; /* Keeps it crunchy and retro */
         }
 
         @keyframes sway {
-            0%, 100% { transform: translateY(0) rotate(-2deg); }
-            50% { transform: translateY(-10px) rotate(2deg); }
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
         }
 
-        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; min-height: 100px; line-height: 1.6; }
-        .screen { display: none; flex-direction: column; align-items: center; width: 100%; }
+        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; min-height: 120px; line-height: 1.8; position: relative; z-index: 10; }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; position: absolute; }
         .active { display: flex; }
         
         .btn { border: 2px solid var(--orange); background: none; color: var(--orange); padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin: 5px; text-transform: uppercase; }
@@ -38,8 +38,8 @@
         .locked { opacity: 0.2; cursor: not-allowed; }
 
         .task-list { width: 90%; max-width: 400px; margin: 15px 0; }
-        .task { padding: 10px; display: flex; align-items: center; font-size: 10px; border-bottom: 1px solid #222; }
-        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--green); }
+        .task { padding: 10px; display: flex; align-items: center; font-size: 10px; border-bottom: 1px solid #333; }
+        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--green); cursor: pointer; }
 
         #gate-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
         .door { position: absolute; width: 50%; height: 100%; background: #080808; border: 2px solid var(--white); transition: 1.2s; }
@@ -53,55 +53,57 @@
 </head>
 <body>
 
-    <div id="loader" class="screen active"><div style="color:var(--gold)">GENERATING WORLD...</div></div>
+    <div id="loader" class="screen active"><div style="color:var(--gold)">PREPARING THE GARDEN...</div></div>
 
     <div id="s1" class="screen">
         <div class="flowrey-sprite"></div>
-        <div style="font-size: 14px; color: var(--green); margin-bottom: 10px;">FLOWREY</div>
         <div class="box" id="t1"></div>
         <div id="countdown" style="color: var(--red); font-size: 10px; margin-bottom: 10px;"></div>
         <button class="btn" onclick="startApp()">[  START ]</button>
     </div>
 
     <div id="s2" class="screen">
-        <div class="box" id="t2">* (The world seems peaceful... for now.)</div>
+        <div class="box" id="t2">* (You see your tasks... they look friendly.)</div>
         <div class="task-list" id="live-tasks"></div>
         <div id="save-zone" style="display:none; text-align:center; margin:10px;">
             <div style="color:var(--gold); font-size:16px; cursor:pointer;" onclick="doSave()">⭐ [ SAVE ]</div>
         </div>
-        <button class="btn locked" id="fight-btn" onclick="go('s3')">[  FIGHT ]</button>
+        <button class="btn locked" id="fight-btn" onclick="go('s3')">[  SHAW ! ]</button>
     </div>
 
     <div id="s3" class="screen">
         <div class="flowrey-sprite"></div>
-        <div class="box" id="t3">* Howdy! Entering the passkey?</div>
+        <div class="box" id="t3"></div>
         <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:var(--white); font-family:'Press Start 2P'; text-align:center; width:80%; outline:none; margin:20px;" placeholder="CODE">
         <button class="btn" onclick="doVerify()">[  VERIFY ]</button>
     </div>
 
     <div id="s4" class="screen">
         <div class="flowrey-sprite"></div>
-        <div class="box" id="t4">* Golly! You're really something, aren't you?</div>
+        <div class="box" id="t4"></div>
         <button class="btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
 
     <div id="gate-wrap"><div class="door left"></div><div class="door right"></div></div>
 
     <script>
+        // --- PASTE YOUR CSV URL HERE ---
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX_HtgHl5hdoE4xC8GvJyO6Ag5n5LJhowfL5IhDHmmlQSc3UXcG5-7o5SGU2IBZNRb9WFFkusp4CG1/pub?output=csv"; 
         
         let audioCtx = null;
         let liveData = { key: "" };
 
         function snd(f, type="square", d=0.1, v=0.04) {
-            if (!audioCtx) audioCtx = new AudioContext();
-            let o = audioCtx.createOscillator();
-            let g = audioCtx.createGain();
-            o.type = type; o.frequency.value = f;
-            g.gain.setValueAtTime(v, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + d);
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let o = audioCtx.createOscillator();
+                let g = audioCtx.createGain();
+                o.type = type; o.frequency.value = f;
+                g.gain.setValueAtTime(v, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); o.stop(audioCtx.currentTime + d);
+            } catch(e) {}
         }
 
         function type(id, txt) {
@@ -109,7 +111,7 @@
             let timer = setInterval(() => {
                 if (i < txt.length) {
                     el.innerHTML += txt[i];
-                    if (txt[i] !== " ") snd(350, "sine", 0.05, 0.03);
+                    if (txt[i] !== " ") snd(400, "sine", 0.05, 0.02);
                     i++;
                 } else { clearInterval(timer); }
             }, 50);
@@ -123,9 +125,9 @@
                 liveData = { t1: row[0], t2: row[1], t3: row[2], key: row[3].trim().toUpperCase(), msg: row[4], exam: row[5] };
                 document.getElementById('loader').style.display = 'none';
                 go('s1');
-                type('t1', `* Howdy! I'm FLOWREY! \n* ${liveData.msg}`);
-                document.getElementById('countdown').innerHTML = `TIME UNTIL HARVEST: ${liveData.exam} DAYS`;
-            } catch (e) { document.getElementById('loader').innerHTML = "WORLD LOAD FAILED."; }
+                type('t1', `* Howdy! I'm FLOWREY!\n* ${liveData.msg}`);
+                document.getElementById('countdown').innerHTML = `DAYS UNTIL HARVEST: ${liveData.exam}`;
+            } catch (e) { document.getElementById('loader').innerHTML = "CONNECTION FAILED."; }
         }
 
         function startApp() { snd(523, "sine", 0.1); go('s2'); type('t2', "* Do your chores, and I'll let you pass!"); renderTasks(); }
@@ -147,6 +149,8 @@
         function go(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            if(id === 's3') type('t3', "* Enter the passkey from your books!");
+            if(id === 's4') type('t4', "* Golly! You're really something, aren't you?");
         }
 
         function doSave() {
@@ -163,11 +167,12 @@
                 snd(1000, "sine", 0.5);
                 let w = document.getElementById('gate-wrap');
                 w.style.display = "block";
-                setTimeout(() => { w.classList.add('open'); go('s4'); type('t4', "* Golly! You're stronger than you look!"); }, 100);
+                setTimeout(() => { w.classList.add('open'); go('s4'); }, 100);
             } else {
                 snd(150, "sawtooth", 0.3);
                 document.getElementById('s3').classList.add('shake');
                 setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
+                document.getElementById('ans').value = "";
             }
         }
 
