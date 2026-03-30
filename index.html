@@ -155,19 +155,28 @@
         }
 
         function doVerify() {
-            let val = document.getElementById('ans').value.toUpperCase();
-            if (val === KEY) {
-                snd(1000, 0.5);
-                let w = document.getElementById('gate-wrap');
-                w.style.display = "block";
-                setTimeout(() => { w.classList.add('open'); goNext('s4'); }, 100);
-            } else {
-                snd(100, 0.3); document.getElementById('s3').classList.add('shake');
-                setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
-            }
-        }
-
-        function doAct() { msg('t2', '* You checked your LNAT goals. You feel prepared.'); }
+    const input = document.getElementById('ans').value.toUpperCase();
+    const screen = document.getElementById('s3'); // The Auth Screen
+    
+    if (input === KEY) {
+        const wrap = document.getElementById('gate-wrap');
+        wrap.style.display = 'block';
+        setTimeout(() => {
+            wrap.classList.add('open');
+            go('s4');
+        }, 100);
+    } else {
+        // --- THE SHAKE ---
+        screen.style.animation = "none"; // Reset animation
+        setTimeout(() => {
+            screen.style.animation = "shake 0.2s ease-in-out 2";
+        }, 10);
+        
+        alert("ACCESS DENIED: THE DRAGON IS UNMUSED.");
+        document.getElementById('ans').value = ""; // Clear the wrong code
+    }
+}
+        function doAct() { msg('t2', '* Do not forget the dragon when u reach the gates of oxford ! Au revoir mortal.'); }
 
         window.onload = () => { msg('t1', '* Welcome back, Qasim.\n* Oxford awaits.'); };
     </script>
