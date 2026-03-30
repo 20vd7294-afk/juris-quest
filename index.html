@@ -3,127 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JURIS QUEST: LIVE</title>
+    <title>JURIS QUEST: TRUE SOUL</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root { --red: #ff0000; --white: #ffffff; --black: #000000; --gold: #ffff00; --orange: #ff9d00; }
-        * { cursor: crosshair; }
+        * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
         body, html { background: var(--black); color: var(--white); font-family: 'Press Start 2P', cursive; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
         
-        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; }
+        .box { border: 4px solid var(--white); padding: 20px; width: 90%; max-width: 500px; background: var(--black); margin-bottom: 20px; min-height: 80px; line-height: 1.6; }
         .screen { display: none; flex-direction: column; align-items: center; width: 100%; }
         .active { display: flex; }
         
-        .btn { border: 2px solid var(--orange); background: none; color: var(--orange); padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin: 5px; }
+        .btn { border: 2px solid var(--orange); background: none; color: var(--orange); padding: 12px 20px; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin: 5px; text-transform: uppercase; }
         .btn:hover { background: var(--white); color: var(--black); }
         .locked { opacity: 0.2; cursor: not-allowed; }
 
         .task-list { width: 90%; max-width: 400px; margin: 15px 0; }
-        .task { padding: 10px; display: flex; align-items: center; font-size: 10px; border-bottom: 1px solid #222; }
-        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; }
+        .task { padding: 10px; display: flex; align-items: center; font-size: 10px; }
+        input[type="checkbox"] { margin-right: 15px; width: 22px; height: 22px; accent-color: var(--red); }
 
-        #countdown { color: var(--red); font-size: 10px; margin-top: 10px; }
-        .loading { color: var(--gold); font-size: 12px; }
+        #gate-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
+        .door { position: absolute; width: 50%; height: 100%; background: #080808; border: 2px solid var(--red); transition: 1.2s cubic-bezier(0.7, 0, 0.3, 1); }
+        .left { left: 0; } .right { right: 0; }
+        .open .left { transform: translateX(-100%); }
+        .open .right { transform: translateX(100%); }
+
+        .shake { animation: shake 0.2s ease-in-out 2; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
 
-    <div id="loader" class="screen active">
-        <div class="loading">COMMUNING WITH THE DRAGON...</div>
-    </div>
+    <div id="loader" class="screen active"><div style="color:var(--gold)">CONNECTING TO SOUL...</div></div>
 
     <div id="s1" class="screen">
-        <div class="box" id="dragon-note">* Welcome, Qasim.</div>
-        <div id="countdown"></div>
-        <button class="btn" onclick="go('s2')">[ START ]</button>
+        <div class="box" id="t1"></div>
+        <div id="countdown" style="color:var(--red); font-size:10px; margin-bottom:10px;"></div>
+        <button class="btn" onclick="startApp()">[ ❤️ START ]</button>
     </div>
 
     <div id="s2" class="screen">
-        <div class="box">* TODAY'S SACRIFICE:</div>
+        <div class="box" id="t2">* Today's tasks appear...</div>
         <div class="task-list" id="live-tasks"></div>
-        <div id="save-zone" style="display:none; text-align:center;">
-            <div style="color:var(--gold); margin: 10px;">⭐ TASK COMPLETE</div>
-            <button class="btn" onclick="doSave()">[ SAVE PROGRESS ]</button>
+        <div id="save-zone" style="display:none; text-align:center; margin:10px;">
+            <div style="color:var(--gold); font-size:20px; cursor:pointer;" onclick="doSave()">⭐ SAVE</div>
         </div>
-        <div style="margin-top: 20px;">
-            <button class="btn locked" id="fight-btn" onclick="go('s3')">[ FIGHT ]</button>
-        </div>
+        <button class="btn locked" id="fight-btn" onclick="go('s3')">[ ❤️ FIGHT ]</button>
     </div>
 
     <div id="s3" class="screen">
-        <div class="box">* THE GUARDIAN:<br><br>Enter the code from your books.</div>
-        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:red; font-family:'Press Start 2P'; text-align:center; width:80%; outline:none; margin:20px;">
-        <button class="btn" onclick="doVerify()">[ VERIFY ]</button>
+        <div class="box" id="t3">* The Guardian demands the passkey.</div>
+        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:var(--red); font-family:'Press Start 2P'; text-align:center; width:80%; outline:none; margin:20px;" placeholder="ENTER CODE">
+        <button class="btn" onclick="doVerify()">[ ❤️ VERIFY ]</button>
     </div>
 
     <div id="s4" class="screen">
-        <div class="box">* VICTORY.<br><br>The Dragon is satisfied... for now.</div>
-        <button class="btn" onclick="location.reload()">[ REST ]</button>
+        <div class="box" id="t4">* You survived. The thought of Oxford fills you with determination.</div>
+        <button class="btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
 
+    <div id="gate-wrap"><div class="door left"></div><div class="door right"></div></div>
+
     <script>
-        // PASTE YOUR PUBLISHED CSV URL HERE:
+        // --- PASTE YOUR CSV URL HERE ---
         const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQX_HtgHl5hdoE4xC8GvJyO6Ag5n5LJhowfL5IhDHmmlQSc3UXcG5-7o5SGU2IBZNRb9WFFkusp4CG1/pub?output=csv"; 
         
-        let liveData = {};
+        let audioCtx = null;
+        let liveData = { key: "LOADING..." };
+
+        function snd(f, type="square", d=0.1, v=0.05) {
+            if (!audioCtx) audioCtx = new AudioContext();
+            let o = audioCtx.createOscillator();
+            let g = audioCtx.createGain();
+            o.type = type; o.frequency.value = f;
+            g.gain.setValueAtTime(v, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + d);
+        }
+
+        function type(id, txt) {
+            let i = 0; let el = document.getElementById(id); el.innerHTML = "";
+            let timer = setInterval(() => {
+                if (i < txt.length) {
+                    el.innerHTML += txt[i];
+                    if (txt[i] !== " ") snd(150, "square", 0.05, 0.03);
+                    i++;
+                } else { clearInterval(timer); }
+            }, 40);
+        }
 
         async function fetchData() {
             try {
-                const response = await fetch(SHEET_URL);
-                const data = await response.text();
-                const rows = data.split('\n')[1].split(','); // Gets the 2nd row
-                
-                liveData = {
-                    t1: rows[0], t2: rows[1], t3: rows[2],
-                    key: rows[3].trim().toUpperCase(),
-                    msg: rows[4],
-                    exam: rows[5]
-                };
-
-                renderApp();
-            } catch (e) {
-                document.getElementById('loader').innerHTML = "ERROR: DRAGON DISCONNECTED.";
-            }
+                const res = await fetch(SHEET_URL);
+                const text = await res.text();
+                const row = text.split('\n')[1].split(',');
+                liveData = { t1: row[0], t2: row[1], t3: row[2], key: row[3].trim().toUpperCase(), msg: row[4], exam: row[5] };
+                document.getElementById('loader').style.display = 'none';
+                go('s1');
+                type('t1', `* DRAGON: ${liveData.msg}`);
+                document.getElementById('countdown').innerHTML = `DAYS TO EXAM: ${liveData.exam}`;
+            } catch (e) { document.getElementById('loader').innerHTML = "CONNECTION FAILED."; }
         }
 
-        function renderApp() {
-            document.getElementById('dragon-note').innerHTML = `* DRAGON: ${liveData.msg}`;
-            document.getElementById('countdown').innerHTML = `DAYS TO EXAM: ${liveData.exam}`;
-            
-            const taskHtml = `
+        function startApp() { snd(440, "sine", 0.1); go('s2'); type('t2', "* Finish the scrolls to SAVE."); renderTasks(); }
+
+        function renderTasks() {
+            document.getElementById('live-tasks').innerHTML = `
                 <div class="task"><input type="checkbox" class="chk"> <span>${liveData.t1}</span></div>
                 <div class="task"><input type="checkbox" class="chk"> <span>${liveData.t2}</span></div>
-                <div class="task"><input type="checkbox" class="chk"> <span>${liveData.t3}</span></div>
-            `;
-            document.getElementById('live-tasks').innerHTML = taskHtml;
-
-            // Setup listeners for new tasks
+                <div class="task"><input type="checkbox" class="chk"> <span>${liveData.t3}</span></div>`;
             document.querySelectorAll('.chk').forEach(c => {
                 c.onchange = () => {
-                    const all = Array.from(document.querySelectorAll('.chk')).every(x => x.checked);
+                    let all = Array.from(document.querySelectorAll('.chk')).every(x => x.checked);
                     document.getElementById('save-zone').style.display = all ? 'block' : 'none';
+                    if(all) snd(600, "sine", 0.1);
                 };
             });
-
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('s1').style.display = 'flex';
         }
 
         function go(id) {
-            document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-            document.getElementById(id).style.display = 'flex';
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
 
         function doSave() {
+            snd(880, "square", 0.1); setTimeout(() => snd(1100, "square", 0.15), 100);
             document.getElementById('fight-btn').classList.remove('locked');
             document.getElementById('save-zone').innerHTML = "<div style='color:var(--gold)'>PROGRESS SAVED.</div>";
+            type('t2', "* You are filled with determination.");
         }
 
         function doVerify() {
-            if (document.getElementById('ans').value.toUpperCase() === liveData.key) {
-                go('s4');
+            let input = document.getElementById('ans').value.trim().toUpperCase();
+            if (input === "") return; // Stops empty clicks
+            if (input === liveData.key) {
+                snd(1000, "sine", 0.5);
+                let w = document.getElementById('gate-wrap');
+                w.style.display = "block";
+                setTimeout(() => { w.classList.add('open'); go('s4'); type('t4', "* The Dragon acknowledges your strength."); }, 100);
             } else {
-                alert("WRONG. THE DRAGON GROWS IMPATIENT.");
+                snd(100, "sawtooth", 0.3);
+                document.getElementById('s3').classList.add('shake');
+                setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
             }
         }
 
