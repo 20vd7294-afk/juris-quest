@@ -3,137 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JURIS QUEST: SHAW EDITION</title>
+    <title>JURIS QUEST: THE GATE</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --blood-red: #ff0000;
-            --pure-white: #ffffff;
-            --deep-black: #000000;
-        }
+        :root { --blood-red: #ff0000; --pure-white: #ffffff; --deep-black: #000000; }
+        body, html { background-color: var(--deep-black); color: var(--pure-white); font-family: 'Orbitron', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
+        
+        .screen { display: none; flex-direction: column; align-items: center; text-align: center; width: 90%; max-width: 600px; position: absolute; }
+        .active { display: flex; z-index: 10; }
 
-        body, html {
-            background-color: var(--deep-black);
-            color: var(--pure-white);
-            font-family: 'Orbitron', sans-serif;
-            margin: 0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+        /* --- THE ANIMATED GATE --- */
+        #gate-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
+        .gate-door { position: absolute; width: 50%; height: 100%; background: #111; border: 4px solid #333; transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; }
+        .left-door { left: 0; border-right: 2px solid var(--blood-red); }
+        .right-door { right: 0; border-left: 2px solid var(--blood-red); }
+        .gate-open .left-door { transform: translateX(-100%); }
+        .gate-open .right-door { transform: translateX(100%); }
 
-        .screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            width: 90%;
-            max-width: 600px;
-            animation: fadeIn 0.8s ease-in-out;
-        }
+        /* --- BUTTONS & UI --- */
+        .btn { background: none; border: 2px solid var(--pure-white); color: var(--pure-white); padding: 15px 30px; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn:hover { background: var(--pure-white); color: var(--deep-black); box-shadow: 0 0 20px var(--pure-white); }
+        .btn-red { border-color: var(--blood-red); color: var(--blood-red); display: none; }
 
-        .active { display: flex; }
+        .dragon { font-size: 100px; filter: drop-shadow(0 0 15px var(--blood-red)); animation: float 2s infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* --- BUTTON STYLES --- */
-        .btn {
-            background: none;
-            border: 2px solid var(--pure-white);
-            color: var(--pure-white);
-            padding: 15px 30px;
-            font-family: 'Press Start 2P', cursive;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 20px;
-        }
-
-        .btn:hover {
-            background: var(--pure-white);
-            color: var(--deep-black);
-            box-shadow: 0 0 20px var(--pure-white);
-        }
-
-        /* --- DRAGON ANIMATION --- */
-        .dragon {
-            font-size: 120px;
-            filter: drop-shadow(0 0 15px var(--blood-red));
-            animation: dragonFloat 2s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
-
-        @keyframes dragonFloat {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(5deg); }
-        }
-
-        .dragon-text {
-            color: var(--blood-red);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 14px;
-            line-height: 1.8;
-            margin: 20px 0;
-            text-transform: uppercase;
-        }
-
-        /* --- TASK LIST --- */
-        .quest-item {
-            border-bottom: 1px solid #333;
-            padding: 15px;
-            width: 100%;
-            display: flex;
-            align-items: center;
-        }
-
-        input[type="checkbox"] {
-            width: 20px;
-            height: 20px;
-            margin-right: 15px;
-            accent-color: var(--blood-red);
-        }
+        .dragon-text { color: var(--blood-red); font-family: 'Press Start 2P', cursive; font-size: 12px; margin: 20px 0; line-height: 1.6; }
+        .quest-item { background: #111; border: 1px solid #333; padding: 15px; width: 100%; margin: 5px 0; border-radius: 5px; display: flex; align-items: center; }
+        input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; accent-color: var(--blood-red); }
     </style>
 </head>
 <body>
 
     <div id="screen-gate" class="screen active">
         <h1 style="font-family: 'Press Start 2P'; font-size: 18px;">JURIS QUEST</h1>
-        <p>CAUTION: CANDIDATE QASIM DETECTED</p>
         <button class="btn" onclick="showScreen('screen-dragon')">ENTER THE VAULT</button>
     </div>
 
     <div id="screen-dragon" class="screen">
         <div class="dragon">🐲</div>
-        <div class="dragon-text" id="dragon-msg">
-            "YOU DARE ENTER OXFORD'S DOMAIN?<br>THE LNAT IS A PIT OF FIRE.<br>JURISPRUDENCE IS THE DRAGON'S BREATH."
-        </div>
+        <div class="dragon-text">"SO, YOU THINK YOU'RE READY FOR OXFORD?"</div>
         <button class="btn" onclick="showScreen('screen-tasks')">SHAW</button>
     </div>
 
     <div id="screen-tasks" class="screen">
         <h2 style="font-family: 'Press Start 2P'; font-size: 14px;">DAILY SCROLLS</h2>
+        <div class="quest-item"><input type="checkbox" class="t-check"> <span>LNAT Logic Training</span></div>
+        <div class="quest-item"><input type="checkbox" class="t-check"> <span>Read 10 Pages Bingham</span></div>
+        <div class="quest-item"><input type="checkbox" class="t-check"> <span>Draft PS Section 1</span></div>
         
-        <div class="quest-item">
-            <input type="checkbox"> <span>LNAT: Logical Fallacy Training</span>
-        </div>
-        <div class="quest-item">
-            <input type="checkbox"> <span>READ: Hart's Concept of Law</span>
-        </div>
-        <div class="quest-item">
-            <input type="checkbox"> <span>BOSS: Personal Statement Edit</span>
-        </div>
+        <button id="done-btn" class="btn btn-red" onclick="openGate()">I'M DONE. OPEN THE GATE.</button>
+    </div>
 
-        <button class="btn" onclick="showScreen('screen-gate')" style="border-color: #444; font-size: 8px; margin-top: 50px;">LOGOUT</button>
+    <div id="screen-cave" class="screen">
+        <div class="dragon" style="filter: drop-shadow(0 0 30px var(--blood-red));">🦖</div>
+        <div class="dragon-text">
+            "HOLLUP MORTAL, IT'S JUST THE START..."<br><br>
+            <span id="final-msg" style="color: white; font-size: 10px;">I'll be looking for you tomorrow. Don't be late.</span>
+        </div>
+        <button class="btn" onclick="location.reload()" style="font-size: 8px;">RESET QUEST</button>
+    </div>
+
+    <div id="gate-container">
+        <div class="gate-door left-door"><span style="transform: rotate(-90deg); color:#222;">OXFORD</span></div>
+        <div class="gate-door right-door"><span style="transform: rotate(90deg); color:#222;">LAW</span></div>
     </div>
 
     <script>
-        function showScreen(screenId) {
-            // Hide all screens
+        function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            // Show the chosen one
-            document.getElementById(screenId).classList.add('active');
+            document.getElementById(id).classList.add('active');
+        }
+
+        // Checkbox Logic
+        const checks = document.querySelectorAll('.t-check');
+        const doneBtn = document.getElementById('done-btn');
+        checks.forEach(c => c.addEventListener('change', () => {
+            const allDone = Array.from(checks).every(i => i.checked);
+            doneBtn.style.display = allDone ? 'block' : 'none';
+        }));
+
+        function openGate() {
+            const gate = document.getElementById('gate-container');
+            gate.style.display = 'block';
+            
+            // Step 1: Close the gate first (visual effect)
+            setTimeout(() => {
+                gate.classList.add('gate-open');
+                showScreen('screen-cave'); // Switch to cave while doors are opening
+            }, 100);
+
+            // Step 2: Remove the gate from view after it opens
+            setTimeout(() => {
+                gate.style.display = 'none';
+            }, 2000);
         }
     </script>
 </body>
