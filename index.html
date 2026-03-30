@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root { --blood-red: #ff0000; --pure-white: #ffffff; --deep-black: #000000; --gold: #ffff00; --ui-orange: #ff9d00; }
+        
+        /* DELTARUNE CURSOR */
         * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
 
         body, html { 
@@ -20,29 +22,35 @@
         .screen { display: none; flex-direction: column; align-items: center; text-align: left; width: 90%; max-width: 600px; position: absolute; }
         .active { display: flex; }
 
-        .battle-menu { display: flex; gap: 10px; margin-top: 30px; }
-        .menu-btn { 
-            border: 2px solid var(--ui-orange); 
-            background: none; color: var(--ui-orange); 
-            padding: 10px 15px; font-family: 'Press Start 2P'; 
-            font-size: 10px; cursor: pointer; text-transform: uppercase;
-        }
-        .menu-btn:hover { color: white; border-color: white; box-shadow: 0 0 10px white; }
-        .menu-btn.disabled { opacity: 0.3; cursor: not-allowed; }
-
+        /* DIALOGUE BOX */
         .dialogue-box {
             border: 4px solid white;
             padding: 20px;
             width: 100%;
-            min-height: 80px;
-            margin-bottom: 20px;
+            min-height: 100px;
             background: black;
-            line-height: 1.6;
+            line-height: 1.8;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            font-size: 12px;
         }
 
+        /* BUTTONS */
+        .battle-menu { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .menu-btn { 
+            border: 2px solid var(--ui-orange); 
+            background: none; color: var(--ui-orange); 
+            padding: 12px 20px; font-family: 'Press Start 2P'; 
+            font-size: 10px; cursor: pointer; text-transform: uppercase;
+            transition: 0.2s;
+        }
+        .menu-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
+        .menu-btn.disabled { opacity: 0.2; cursor: not-allowed; }
+
+        /* STAR */
         .save-star {
             color: var(--gold);
-            font-size: 30px;
+            font-size: 35px;
             margin: 20px;
             display: none;
             filter: drop-shadow(0 0 10px var(--gold));
@@ -51,32 +59,33 @@
         }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
+        /* GATES */
         #gate-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
-        .gate-door { position: absolute; width: 50%; height: 100%; background: #0a0a0a; border: 5px solid #222; transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1); }
+        .gate-door { position: absolute; width: 50%; height: 100%; background: #0a0a0a; border: 5px solid #222; transition: transform 1.2s ease-in-out; }
         .left-door { left: 0; border-right: 2px solid var(--blood-red); }
         .right-door { right: 0; border-left: 2px solid var(--blood-red); }
         .gate-open .left-door { transform: translateX(-100%); }
         .gate-open .right-door { transform: translateX(100%); }
 
-        .quest-item { padding: 10px; display: flex; align-items: center; font-size: 10px; }
-        input[type="checkbox"] { margin-right: 15px; accent-color: var(--blood-red); width: 18px; height: 18px; }
-        .dragon-sprite { font-size: 60px; margin-bottom: 20px; }
-        .secret-input { background: none; border: none; border-bottom: 2px solid white; color: var(--blood-red); font-family: 'Press Start 2P'; text-align: center; outline: none; margin-top: 20px; width: 100%; text-transform: uppercase; }
+        .quest-item { padding: 10px; display: flex; align-items: center; font-size: 11px; width: 100%; }
+        input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; accent-color: var(--blood-red); }
         
-        @keyframes shake { 0% { left: 0; } 25% { left: -10px; } 75% { left: 10px; } 100% { left: 0; } }
-        .shake { animation: shake 0.2s 2; }
+        .secret-input { background: none; border: none; border-bottom: 2px solid white; color: var(--blood-red); font-family: 'Press Start 2P'; text-align: center; outline: none; margin: 20px 0; width: 100%; font-size: 16px; }
+        
+        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-8px,0); } 75% { transform: translate(8px,0); } }
+        .shake { animation: shake 0.2s ease-in-out 2; }
     </style>
 </head>
 <body>
 
     <div id="screen-gate" class="screen active">
-        <div class="dialogue-box" id="intro-text"></div>
-        <button class="menu-btn" onclick="startQuest()">[ ❤️ START ]</button>
+        <div class="dialogue-box" id="intro-text">* Welcome back, Qasim.</div>
+        <button class="menu-btn" onclick="startApp()">[ ❤️ START ]</button>
     </div>
 
     <div id="screen-tasks" class="screen">
         <div class="dialogue-box" id="task-dialogue"></div>
-        <div id="task-list">
+        <div id="task-list" style="width: 100%;">
             <div class="quest-item"><input type="checkbox" class="t-check"> <span>LNAT LOGIC</span></div>
             <div class="quest-item"><input type="checkbox" class="t-check"> <span>JURISPRUDENCE</span></div>
             <div class="quest-item"><input type="checkbox" class="t-check"> <span>PS EDITING</span></div>
@@ -90,14 +99,14 @@
     </div>
 
     <div id="screen-auth" class="screen">
-        <div class="dragon-sprite">🐲</div>
+        <div style="font-size: 50px; margin-bottom: 10px;">🐲</div>
         <div class="dialogue-box" id="auth-dialogue"></div>
-        <input type="text" id="user-code" class="secret-input" placeholder="ANSWER">
-        <button class="menu-btn" style="margin-top:30px;" onclick="verify()">[ ❤️ VERIFY ]</button>
+        <input type="text" id="user-code" class="secret-input" placeholder="PASSKEY">
+        <button class="menu-btn" onclick="verify()">[ ❤️ VERIFY ]</button>
     </div>
 
     <div id="screen-cave" class="screen">
-        <div class="dragon-sprite">🦖</div>
+        <div style="font-size: 50px; margin-bottom: 10px;">🦖</div>
         <div class="dialogue-box" id="cave-dialogue"></div>
         <button class="menu-btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
@@ -105,98 +114,115 @@
     <div id="gate-container"><div class="gate-door left-door"></div><div class="gate-door right-door"></div></div>
 
     <script>
-        const CORRECT_ANSWER = "JUSTICE"; 
+        const CORRECT_ANSWER = "JUSTICE"; // Set your daily key here
         let audioCtx = null;
+        let canFight = false;
 
-        // Initialize Audio on first click
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Audio Engine
+        function playSfx(freq, type, duration, vol=0.05) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) { console.log("Audio blocked"); }
         }
 
-        function playSound(freq, type, duration, vol=0.1) {
-            initAudio();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
-        }
-
-        // DELTARUNE TYPEWRITER
-        function typeText(elementId, text) {
-            let i = 0;
-            const el = document.getElementById(elementId);
+        // Typewriter Engine
+        function typeText(id, text) {
+            const el = document.getElementById(id);
             el.innerHTML = "";
-            function worker() {
+            let i = 0;
+            const interval = setInterval(() => {
                 if (i < text.length) {
                     el.innerHTML += text.charAt(i);
-                    // Play text blip sound
-                    if (text.charAt(i) !== " ") playSound(150, 'square', 0.05, 0.05);
+                    if (text.charAt(i) !== " ") playSfx(150, 'square', 0.05);
                     i++;
-                    setTimeout(worker, 50);
+                } else {
+                    clearInterval(interval);
                 }
-            }
-            worker();
+            }, 40);
         }
 
-        function startQuest() {
-            initAudio();
-            playSound(440, 'sine', 0.1);
+        function startApp() {
+            playSfx(440, 'sine', 0.1);
             goTo('screen-tasks');
             typeText('task-dialogue', '* You feel the weight of your future.\n* Complete the tasks to SAVE.');
         }
 
         function goTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            if(id === 'screen-auth') typeText('auth-dialogue', '* The Guardian demands the secret word from the text.');
-            if(id === 'screen-cave') typeText('cave-dialogue', '* You survived another day.\n* Don\'t forget...');
+            const target = document.getElementById(id);
+            target.classList.add('active');
+            
+            if(id === 'screen-auth') typeText('auth-dialogue', '* The Guardian blocks the way.\n* Prove you have studied.');
+            if(id === 'screen-cave') typeText('cave-dialogue', '* You survived another day.\n* The thought of Oxford fills you with determination.');
         }
 
+        // Checkbox Monitor
         document.querySelectorAll('.t-check').forEach(box => {
             box.addEventListener('change', () => {
                 const allDone = Array.from(document.querySelectorAll('.t-check')).every(c => c.checked);
                 document.getElementById('save-star').style.display = allDone ? 'block' : 'none';
+                if(allDone) playSfx(600, 'sine', 0.1);
             });
         });
 
         function saveProgress() {
-            // THE SAVE SOUND (Deltarune Style)
-            playSound(880, 'square', 0.1);
-            setTimeout(() => playSound(1100, 'square', 0.15), 100);
-            setTimeout(() => playSound(1300, 'square', 0.2), 200);
-
+            canFight = true;
+            playSfx(880, 'square', 0.1);
+            setTimeout(() => playSfx(1100, 'square', 0.1), 100);
             document.getElementById('fight-btn').classList.remove('disabled');
             document.getElementById('save-star').style.display = 'none';
-            typeText('task-dialogue', '* Progress Saved. You are filled with determination.');
+            typeText('task-dialogue', '* Progress Saved.\n* You are now prepared to FIGHT.');
         }
 
         function verify() {
+            if(!canFight) return;
             const input = document.getElementById('user-code');
-            if (input.value.toUpperCase() === CORRECT_ANSWER) {
-                playSound(1000, 'sine', 0.5);
+            if (input.value.trim().toUpperCase() === CORRECT_ANSWER) {
+                playSfx(1000, 'sine', 0.5);
                 triggerGate();
             } else {
-                playSound(100, 'sawtooth', 0.3);
-                document.body.classList.add('shake');
-                setTimeout(() => document.body.classList.remove('shake'), 200);
+                playSfx(100, 'sawtooth', 0.3);
+                document.getElementById('screen-auth').classList.add('shake');
+                setTimeout(() => document.getElementById('screen-auth').classList.remove('shake'), 300);
                 input.value = "";
             }
         }
 
         function triggerGate() {
-            document.getElementById('gate-container').style.display = 'block';
+            const gate = document.getElementById('gate-container');
+            gate.style.display = 'block';
             setTimeout(() => {
-                document.getElementById('gate-container').classList.add('gate-open');
+                gate.classList.add('gate-open');
                 goTo('screen-cave');
             }, 100);
         }
 
         function actAction() {
-            playSound(300, 'sine', 0.1);
-            typeText('task-dialogue', '* You checked the LNAT samples.\n* Your IQ increased by 1 (
+            playSfx(300, 'sine', 0.1);
+            typeText('task-dialogue', '* You reviewed your notes.\n* Your confidence rose slightly.');
+        }
+
+        function itemAction() {
+            playSfx(300, 'sine', 0.1);
+            alert("INV: 1x Cold Coffee, 1x Half-written Essay.");
+        }
+
+        // Init
+        window.onload = () => {
+            typeText('intro-text', '* Welcome back, Qasim.\n* Oxford awaits.');
+        };
+    </script>
+</body>
+</html>
