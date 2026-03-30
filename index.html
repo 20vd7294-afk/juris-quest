@@ -3,135 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JURIS QUEST: HEGALE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <title>JURIS QUEST: SOUL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        :root { --blood-red: #ff0000; --pure-white: #ffffff; --deep-black: #000000; }
-        body, html { background-color: var(--deep-black); color: var(--pure-white); font-family: 'Orbitron', sans-serif; margin: 0; height: 100vh; overflow: hidden; display: flex; justify-content: center; align-items: center; }
-        
-        /* SCREEN SYSTEM */
-        .screen { display: none; flex-direction: column; align-items: center; text-align: center; width: 90%; max-width: 600px; position: absolute; z-index: 10; }
+        :root { --blood-red: #ff0000; --pure-white: #ffffff; --deep-black: #000000; --gold: #ffff00; --ui-orange: #ff9d00; }
+        * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
+
+        body, html { 
+            background-color: var(--deep-black); 
+            color: var(--pure-white); 
+            font-family: 'Press Start 2P', cursive; 
+            margin: 0; height: 100vh; overflow: hidden; 
+            display: flex; justify-content: center; align-items: center; 
+        }
+
+        .screen { display: none; flex-direction: column; align-items: center; text-align: left; width: 90%; max-width: 600px; position: absolute; }
         .active { display: flex; }
 
-        /* THE GATE ANIMATION */
+        .battle-menu { display: flex; gap: 10px; margin-top: 30px; }
+        .menu-btn { 
+            border: 2px solid var(--ui-orange); 
+            background: none; color: var(--ui-orange); 
+            padding: 10px 15px; font-family: 'Press Start 2P'; 
+            font-size: 10px; cursor: pointer; text-transform: uppercase;
+        }
+        .menu-btn:hover { color: white; border-color: white; box-shadow: 0 0 10px white; }
+        .menu-btn.disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .dialogue-box {
+            border: 4px solid white;
+            padding: 20px;
+            width: 100%;
+            min-height: 80px;
+            margin-bottom: 20px;
+            background: black;
+            line-height: 1.6;
+        }
+
+        .save-star {
+            color: var(--gold);
+            font-size: 30px;
+            margin: 20px;
+            display: none;
+            filter: drop-shadow(0 0 10px var(--gold));
+            animation: pulse 1s infinite;
+            cursor: pointer;
+        }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
         #gate-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
-        .gate-door { position: absolute; width: 50%; height: 100%; background: #0a0a0a; border: 5px solid #222; transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1); box-shadow: inset 0 0 50px #000; }
+        .gate-door { position: absolute; width: 50%; height: 100%; background: #0a0a0a; border: 5px solid #222; transition: transform 1.5s cubic-bezier(0.7, 0, 0.3, 1); }
         .left-door { left: 0; border-right: 2px solid var(--blood-red); }
         .right-door { right: 0; border-left: 2px solid var(--blood-red); }
         .gate-open .left-door { transform: translateX(-100%); }
         .gate-open .right-door { transform: translateX(100%); }
 
-        /* UI BUTTONS */
-        .btn { background: none; border: 2px solid var(--pure-white); color: var(--pure-white); padding: 15px 30px; font-family: 'Press Start 2P', cursive; font-size: 10px; cursor: pointer; margin-top: 20px; transition: 0.3s; z-index: 20; }
-        .btn:hover { background: var(--blood-red); border-color: var(--blood-red); box-shadow: 0 0 20px var(--blood-red); }
+        .quest-item { padding: 10px; display: flex; align-items: center; font-size: 10px; }
+        input[type="checkbox"] { margin-right: 15px; accent-color: var(--blood-red); width: 18px; height: 18px; }
+        .dragon-sprite { font-size: 60px; margin-bottom: 20px; }
+        .secret-input { background: none; border: none; border-bottom: 2px solid white; color: var(--blood-red); font-family: 'Press Start 2P'; text-align: center; outline: none; margin-top: 20px; width: 100%; text-transform: uppercase; }
         
-        .secret-input { background: #111; border: 1px solid var(--blood-red); color: var(--blood-red); padding: 15px; font-family: 'Press Start 2P'; text-align: center; margin-top: 15px; width: 80%; outline: none; font-size: 14px; }
-        
-        /* DRAGON VIBES */
-        .dragon { font-size: 80px; filter: drop-shadow(0 0 15px var(--blood-red)); animation: float 2s infinite; margin-bottom: 10px; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-
-        .dragon-text { color: var(--blood-red); font-family: 'Press Start 2P', cursive; font-size: 10px; margin: 15px 0; line-height: 1.8; }
-        .quest-item { background: #111; border: 1px solid #333; padding: 12px; width: 100%; margin: 5px 0; border-radius: 5px; display: flex; align-items: center; box-sizing: border-box; }
-        input[type="checkbox"] { width: 20px; height: 20px; margin-right: 15px; accent-color: var(--blood-red); cursor: pointer; }
-        
-        #code-hint { display:none; color: gold; font-family: 'Press Start 2P'; font-size: 9px; margin-top: 15px; padding: 10px; border: 1px dashed gold; }
+        @keyframes shake { 0% { left: 0; } 25% { left: -10px; } 75% { left: 10px; } 100% { left: 0; } }
+        .shake { animation: shake 0.2s 2; }
     </style>
 </head>
 <body>
 
     <div id="screen-gate" class="screen active">
-        <h1 style="font-family: 'Press Start 2P'; font-size: 18px; letter-spacing: 2px;">JURIS QUEST</h1>
-        <p style="font-size: 10px; color: #666;">v1.0 SHAW OS</p>
-        <button class="btn" onclick="goTo('screen-dragon')">ENTER THE VAULT</button>
-    </div>
-
-    <div id="screen-dragon" class="screen">
-        <div class="dragon">🐲</div>
-        <div class="dragon-text">"THE OXFORD GATES REQUIRE SACRIFICE.<br>DO YOUR TASKS OR FACE THE FLAME."</div>
-        <button class="btn" onclick="goTo('screen-tasks')">SHAW</button>
+        <div class="dialogue-box" id="intro-text"></div>
+        <button class="menu-btn" onclick="startQuest()">[ ❤️ START ]</button>
     </div>
 
     <div id="screen-tasks" class="screen">
-        <h2 style="font-family: 'Press Start 2P'; font-size: 12px; color: var(--pure-white);">DAILY SCROLLS</h2>
-        <div class="quest-item"><input type="checkbox" class="t-check"> <span>LNAT Logic Drills</span></div>
-        <div class="quest-item"><input type="checkbox" class="t-check"> <span>Jurisprudence Reading</span></div>
-        <div class="quest-item"><input type="checkbox" class="t-check"> <span>Personal Statement Edit</span></div>
-        
-        <div id="code-hint">ACCESS CODE UNLOCKED: <br><span style="font-size: 14px;">OXFORD2026</span></div>
-        <button id="hegale-btn" class="btn" style="display:none;" onclick="goTo('screen-auth')">HEGALE :&gt;</button>
+        <div class="dialogue-box" id="task-dialogue"></div>
+        <div id="task-list">
+            <div class="quest-item"><input type="checkbox" class="t-check"> <span>LNAT LOGIC</span></div>
+            <div class="quest-item"><input type="checkbox" class="t-check"> <span>JURISPRUDENCE</span></div>
+            <div class="quest-item"><input type="checkbox" class="t-check"> <span>PS EDITING</span></div>
+        </div>
+        <div class="save-star" id="save-star" onclick="saveProgress()">⭐</div>
+        <div class="battle-menu">
+            <button class="menu-btn disabled" id="fight-btn" onclick="goTo('screen-auth')">[ ❤️ FIGHT ]</button>
+            <button class="menu-btn" onclick="actAction()">[ 🗨️ ACT ]</button>
+            <button class="menu-btn" onclick="itemAction()">[ 🎒 ITEM ]</button>
+        </div>
     </div>
 
     <div id="screen-auth" class="screen">
-        <div class="dragon-text">ENCRYPTION DETECTED.<br>ENTER ACCESS CODE:</div>
-        <input type="text" id="user-code" class="secret-input" placeholder="CODE HERE">
-        <button class="btn" onclick="checkFinalCode()">VERIFY</button>
+        <div class="dragon-sprite">🐲</div>
+        <div class="dialogue-box" id="auth-dialogue"></div>
+        <input type="text" id="user-code" class="secret-input" placeholder="ANSWER">
+        <button class="menu-btn" style="margin-top:30px;" onclick="verify()">[ ❤️ VERIFY ]</button>
     </div>
 
     <div id="screen-cave" class="screen">
-        <div class="dragon">🦖</div>
-        <div class="dragon-text">"HOLLUP MORTAL, IT'S JUST THE START..."</div>
-        <div style="background: #111; padding: 20px; border: 1px solid var(--blood-red); color: white; font-family: sans-serif; text-align: left; line-height: 1.5;">
-            <strong>DRAGON'S NOTE:</strong><br><br>
-            I'll be looking for you tomorrow. Oxford doesn't sleep, and neither do I. Keep the streak alive, Qasim.
-        </div>
-        <button class="btn" onclick="location.reload()" style="font-size: 8px; margin-top: 30px;">RESET SYSTEM</button>
+        <div class="dragon-sprite">🦖</div>
+        <div class="dialogue-box" id="cave-dialogue"></div>
+        <button class="menu-btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
 
-    <div id="gate-container">
-        <div class="gate-door left-door"></div>
-        <div class="gate-door right-door"></div>
-    </div>
+    <div id="gate-container"><div class="gate-door left-door"></div><div class="gate-door right-door"></div></div>
 
     <script>
-        // CORE NAVIGATION
+        const CORRECT_ANSWER = "JUSTICE"; 
+        let audioCtx = null;
+
+        // Initialize Audio on first click
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playSound(freq, type, duration, vol=0.1) {
+            initAudio();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // DELTARUNE TYPEWRITER
+        function typeText(elementId, text) {
+            let i = 0;
+            const el = document.getElementById(elementId);
+            el.innerHTML = "";
+            function worker() {
+                if (i < text.length) {
+                    el.innerHTML += text.charAt(i);
+                    // Play text blip sound
+                    if (text.charAt(i) !== " ") playSound(150, 'square', 0.05, 0.05);
+                    i++;
+                    setTimeout(worker, 50);
+                }
+            }
+            worker();
+        }
+
+        function startQuest() {
+            initAudio();
+            playSound(440, 'sine', 0.1);
+            goTo('screen-tasks');
+            typeText('task-dialogue', '* You feel the weight of your future.\n* Complete the tasks to SAVE.');
+        }
+
         function goTo(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
+            if(id === 'screen-auth') typeText('auth-dialogue', '* The Guardian demands the secret word from the text.');
+            if(id === 'screen-cave') typeText('cave-dialogue', '* You survived another day.\n* Don\'t forget...');
         }
 
-        // TASK LOGIC
-        const checkboxes = document.querySelectorAll('.t-check');
-        const hegaleBtn = document.getElementById('hegale-btn');
-        const codeHint = document.getElementById('code-hint');
-
-        checkboxes.forEach(box => {
+        document.querySelectorAll('.t-check').forEach(box => {
             box.addEventListener('change', () => {
-                const completed = Array.from(checkboxes).every(c => c.checked);
-                if(completed) {
-                    hegaleBtn.style.display = 'block';
-                    codeHint.style.display = 'block';
-                } else {
-                    hegaleBtn.style.display = 'none';
-                    codeHint.style.display = 'none';
-                }
+                const allDone = Array.from(document.querySelectorAll('.t-check')).every(c => c.checked);
+                document.getElementById('save-star').style.display = allDone ? 'block' : 'none';
             });
         });
 
-        // AUTH & GATE LOGIC
-        function checkFinalCode() {
-            const input = document.getElementById('user-code').value.toUpperCase();
-            if (input === "OXFORD2026") {
-                triggerGateEffect();
+        function saveProgress() {
+            // THE SAVE SOUND (Deltarune Style)
+            playSound(880, 'square', 0.1);
+            setTimeout(() => playSound(1100, 'square', 0.15), 100);
+            setTimeout(() => playSound(1300, 'square', 0.2), 200);
+
+            document.getElementById('fight-btn').classList.remove('disabled');
+            document.getElementById('save-star').style.display = 'none';
+            typeText('task-dialogue', '* Progress Saved. You are filled with determination.');
+        }
+
+        function verify() {
+            const input = document.getElementById('user-code');
+            if (input.value.toUpperCase() === CORRECT_ANSWER) {
+                playSound(1000, 'sine', 0.5);
+                triggerGate();
             } else {
-                alert("ACCESS DENIED. TRY AGAIN.");
+                playSound(100, 'sawtooth', 0.3);
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 200);
+                input.value = "";
             }
         }
 
-        function triggerGateEffect() {
-            const container = document.getElementById('gate-container');
-            container.style.display = 'block';
-            
+        function triggerGate() {
+            document.getElementById('gate-container').style.display = 'block';
             setTimeout(() => {
-                container.classList.add('gate-open');
+                document.getElementById('gate-container').classList.add('gate-open');
                 goTo('screen-cave');
             }, 100);
-
-            setTimeout(() => {
-                container.style.display = 'none';
-                container.classList.remove('gate-open');
-            }, 3000);
         }
-    </script>
-</body>
-</html>
+
+        function actAction() {
+            playSound(300, 'sine', 0.1);
+            typeText('task-dialogue', '* You checked the LNAT samples.\n* Your IQ increased by 1 (
