@@ -3,226 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JURIS QUEST: SOUL</title>
+    <title>JURIS QUEST: DELTARUNE</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
-        :root { --blood-red: #ff0000; --pure-white: #ffffff; --deep-black: #000000; --gold: #ffff00; --ui-orange: #ff9d00; }
+        :root { --blood-red: #ff0000; --white: #ffffff; --black: #000000; --gold: #ffff00; --orange: #ff9d00; }
         
-        /* DELTARUNE CURSOR */
+        /* THE SOUL CURSOR */
         * { cursor: url('https://cur.cursors-4u.net/games/gam-13/gam1216.cur'), auto !important; }
 
         body, html { 
-            background-color: var(--deep-black); 
-            color: var(--pure-white); 
+            background-color: var(--black); 
+            color: var(--white); 
             font-family: 'Press Start 2P', cursive; 
             margin: 0; height: 100vh; overflow: hidden; 
             display: flex; justify-content: center; align-items: center; 
         }
 
-        .screen { display: none; flex-direction: column; align-items: center; text-align: left; width: 90%; max-width: 600px; position: absolute; }
+        /* BOX STYLE */
+        .box {
+            border: 4px solid var(--white);
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            background: var(--black);
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; position: absolute; }
         .active { display: flex; }
 
-        /* DIALOGUE BOX */
-        .dialogue-box {
-            border: 4px solid white;
-            padding: 20px;
-            width: 100%;
-            min-height: 100px;
-            background: black;
-            line-height: 1.8;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            font-size: 12px;
-        }
-
         /* BUTTONS */
-        .battle-menu { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
-        .menu-btn { 
-            border: 2px solid var(--ui-orange); 
-            background: none; color: var(--ui-orange); 
-            padding: 12px 20px; font-family: 'Press Start 2P'; 
-            font-size: 10px; cursor: pointer; text-transform: uppercase;
-            transition: 0.2s;
+        .menu-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+        .btn { 
+            border: 2px solid var(--orange); 
+            background: none; color: var(--orange); 
+            padding: 12px 15px; font-family: 'Press Start 2P'; 
+            font-size: 10px; cursor: pointer;
         }
-        .menu-btn:hover { color: white; border-color: white; background: rgba(255,255,255,0.1); }
-        .menu-btn.disabled { opacity: 0.2; cursor: not-allowed; }
+        .btn:hover { color: var(--white); border-color: var(--white); }
+        .btn.locked { opacity: 0.2; cursor: not-allowed; }
 
         /* STAR */
-        .save-star {
+        .star {
             color: var(--gold);
-            font-size: 35px;
-            margin: 20px;
+            font-size: 30px;
+            margin: 15px;
             display: none;
-            filter: drop-shadow(0 0 10px var(--gold));
-            animation: pulse 1s infinite;
             cursor: pointer;
+            animation: glow 1s infinite;
         }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+        @keyframes glow { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
         /* GATES */
-        #gate-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; pointer-events: none; }
-        .gate-door { position: absolute; width: 50%; height: 100%; background: #0a0a0a; border: 5px solid #222; transition: transform 1.2s ease-in-out; }
-        .left-door { left: 0; border-right: 2px solid var(--blood-red); }
-        .right-door { right: 0; border-left: 2px solid var(--blood-red); }
-        .gate-open .left-door { transform: translateX(-100%); }
-        .gate-open .right-door { transform: translateX(100%); }
+        #gate-wrap { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; z-index: 100; }
+        .door { position: absolute; width: 50%; height: 100%; background: #050505; border: 2px solid var(--blood-red); transition: 1.2s ease-in-out; }
+        .left { left: 0; } .right { right: 0; }
+        .open .left { transform: translateX(-100%); }
+        .open .right { transform: translateX(100%); }
 
-        .quest-item { padding: 10px; display: flex; align-items: center; font-size: 11px; width: 100%; }
-        input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; accent-color: var(--blood-red); }
+        .task { width: 100%; padding: 10px; display: flex; align-items: center; font-size: 10px; }
+        input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; }
         
-        .secret-input { background: none; border: none; border-bottom: 2px solid white; color: var(--blood-red); font-family: 'Press Start 2P'; text-align: center; outline: none; margin: 20px 0; width: 100%; font-size: 16px; }
-        
-        @keyframes shake { 0%, 100% { transform: translate(0,0); } 25% { transform: translate(-8px,0); } 75% { transform: translate(8px,0); } }
-        .shake { animation: shake 0.2s ease-in-out 2; }
+        .shake { animation: shake 0.2s 2; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
 
-    <div id="screen-gate" class="screen active">
-        <div class="dialogue-box" id="intro-text">* Welcome back, Qasim.</div>
-        <button class="menu-btn" onclick="startApp()">[ ❤️ START ]</button>
+    <div id="s1" class="screen active">
+        <div class="box" id="t1">* Welcome back, Qasim.</div>
+        <button class="btn" onclick="goNext('s2')">[ ❤️ START ]</button>
     </div>
 
-    <div id="screen-tasks" class="screen">
-        <div class="dialogue-box" id="task-dialogue"></div>
-        <div id="task-list" style="width: 100%;">
-            <div class="quest-item"><input type="checkbox" class="t-check"> <span>LNAT LOGIC</span></div>
-            <div class="quest-item"><input type="checkbox" class="t-check"> <span>JURISPRUDENCE</span></div>
-            <div class="quest-item"><input type="checkbox" class="t-check"> <span>PS EDITING</span></div>
+    <div id="s2" class="screen">
+        <div class="box" id="t2">* (The air is filled with determination.)</div>
+        <div style="width: 90%; max-width: 400px;">
+            <div class="task"><input type="checkbox" class="chk"> <span>LNAT DRILLS</span></div>
+            <div class="task"><input type="checkbox" class="chk"> <span>READ BINGHAM</span></div>
+            <div class="task"><input type="checkbox" class="chk"> <span>DRAFT PS</span></div>
         </div>
-        <div class="save-star" id="save-star" onclick="saveProgress()">⭐</div>
-        <div class="battle-menu">
-            <button class="menu-btn disabled" id="fight-btn" onclick="goTo('screen-auth')">[ ❤️ FIGHT ]</button>
-            <button class="menu-btn" onclick="actAction()">[ 🗨️ ACT ]</button>
-            <button class="menu-btn" onclick="itemAction()">[ 🎒 ITEM ]</button>
+        <div class="star" id="save-star" onclick="doSave()">⭐</div>
+        <div class="menu-row">
+            <button class="btn locked" id="fight-btn" onclick="goNext('s3')">[ ❤️ FIGHT ]</button>
+            <button class="btn" onclick="doAct()">[ 🗨️ ACT ]</button>
         </div>
     </div>
 
-    <div id="screen-auth" class="screen">
-        <div style="font-size: 50px; margin-bottom: 10px;">🐲</div>
-        <div class="dialogue-box" id="auth-dialogue"></div>
-        <input type="text" id="user-code" class="secret-input" placeholder="PASSKEY">
-        <button class="menu-btn" onclick="verify()">[ ❤️ VERIFY ]</button>
+    <div id="s3" class="screen">
+        <div style="font-size: 40px; margin-bottom: 10px;">🐲</div>
+        <div class="box" id="t3">* The Guardian blocks the way.</div>
+        <input type="text" id="ans" style="background:none; border:none; border-bottom:2px solid white; color:red; font-family:'Press Start 2P'; text-align:center; outline:none; margin:20px; width:80%;" placeholder="CODE">
+        <button class="btn" onclick="doVerify()">[ ❤️ VERIFY ]</button>
     </div>
 
-    <div id="screen-cave" class="screen">
-        <div style="font-size: 50px; margin-bottom: 10px;">🦖</div>
-        <div class="dialogue-box" id="cave-dialogue"></div>
-        <button class="menu-btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
+    <div id="s4" class="screen">
+        <div style="font-size: 40px; margin-bottom: 10px;">🦖</div>
+        <div class="box" id="t4">* You survived. See you tomorrow.</div>
+        <button class="btn" onclick="location.reload()">[ 🏳️ MERCY ]</button>
     </div>
 
-    <div id="gate-container"><div class="gate-door left-door"></div><div class="gate-door right-door"></div></div>
+    <div id="gate-wrap"><div class="door left"></div><div class="door right"></div></div>
 
     <script>
-        const CORRECT_ANSWER = "JUSTICE"; // Set your daily key here
+        const KEY = "OXFORD"; // Change your password here
         let audioCtx = null;
-        let canFight = false;
 
-        // Audio Engine
-        function playSfx(freq, type, duration, vol=0.05) {
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + duration);
-            } catch(e) { console.log("Audio blocked"); }
+        function snd(f, d) {
+            if (!audioCtx) audioCtx = new AudioContext();
+            let o = audioCtx.createOscillator();
+            let g = audioCtx.createGain();
+            o.type = "square"; o.frequency.value = f;
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + d);
         }
 
-        // Typewriter Engine
-        function typeText(id, text) {
-            const el = document.getElementById(id);
-            el.innerHTML = "";
-            let i = 0;
-            const interval = setInterval(() => {
-                if (i < text.length) {
-                    el.innerHTML += text.charAt(i);
-                    if (text.charAt(i) !== " ") playSfx(150, 'square', 0.05);
+        function msg(id, txt) {
+            let i = 0; let target = document.getElementById(id);
+            target.innerHTML = "";
+            let timer = setInterval(() => {
+                if (i < txt.length) {
+                    target.innerHTML += txt[i];
+                    if (txt[i] !== " ") snd(150, 0.05);
                     i++;
-                } else {
-                    clearInterval(interval);
-                }
+                } else { clearInterval(timer); }
             }, 40);
         }
 
-        function startApp() {
-            playSfx(440, 'sine', 0.1);
-            goTo('screen-tasks');
-            typeText('task-dialogue', '* You feel the weight of your future.\n* Complete the tasks to SAVE.');
-        }
-
-        function goTo(id) {
+        function goNext(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            const target = document.getElementById(id);
-            target.classList.add('active');
-            
-            if(id === 'screen-auth') typeText('auth-dialogue', '* The Guardian blocks the way.\n* Prove you have studied.');
-            if(id === 'screen-cave') typeText('cave-dialogue', '* You survived another day.\n* The thought of Oxford fills you with determination.');
+            document.getElementById(id).classList.add('active');
+            if (id === 's2') msg('t2', '* Finish the tasks to SAVE.');
+            if (id === 's3') msg('t3', '* Use the secret word to prove your study.');
+            if (id === 's4') msg('t4', '* You won. Go rest, scholar.');
         }
 
-        // Checkbox Monitor
-        document.querySelectorAll('.t-check').forEach(box => {
-            box.addEventListener('change', () => {
-                const allDone = Array.from(document.querySelectorAll('.t-check')).every(c => c.checked);
-                document.getElementById('save-star').style.display = allDone ? 'block' : 'none';
-                if(allDone) playSfx(600, 'sine', 0.1);
-            });
+        document.querySelectorAll('.chk').forEach(c => {
+            c.onchange = () => {
+                let all = Array.from(document.querySelectorAll('.chk')).every(x => x.checked);
+                document.getElementById('save-star').style.display = all ? 'block' : 'none';
+            }
         });
 
-        function saveProgress() {
-            canFight = true;
-            playSfx(880, 'square', 0.1);
-            setTimeout(() => playSfx(1100, 'square', 0.1), 100);
-            document.getElementById('fight-btn').classList.remove('disabled');
+        function doSave() {
+            snd(880, 0.1); setTimeout(() => snd(1100, 0.2), 100);
+            document.getElementById('fight-btn').classList.remove('locked');
             document.getElementById('save-star').style.display = 'none';
-            typeText('task-dialogue', '* Progress Saved.\n* You are now prepared to FIGHT.');
+            msg('t2', '* Progress Saved. You are filled with determination.');
         }
 
-        function verify() {
-            if(!canFight) return;
-            const input = document.getElementById('user-code');
-            if (input.value.trim().toUpperCase() === CORRECT_ANSWER) {
-                playSfx(1000, 'sine', 0.5);
-                triggerGate();
+        function doVerify() {
+            let val = document.getElementById('ans').value.toUpperCase();
+            if (val === KEY) {
+                snd(1000, 0.5);
+                let w = document.getElementById('gate-wrap');
+                w.style.display = "block";
+                setTimeout(() => { w.classList.add('open'); goNext('s4'); }, 100);
             } else {
-                playSfx(100, 'sawtooth', 0.3);
-                document.getElementById('screen-auth').classList.add('shake');
-                setTimeout(() => document.getElementById('screen-auth').classList.remove('shake'), 300);
-                input.value = "";
+                snd(100, 0.3); document.getElementById('s3').classList.add('shake');
+                setTimeout(() => document.getElementById('s3').classList.remove('shake'), 300);
             }
         }
 
-        function triggerGate() {
-            const gate = document.getElementById('gate-container');
-            gate.style.display = 'block';
-            setTimeout(() => {
-                gate.classList.add('gate-open');
-                goTo('screen-cave');
-            }, 100);
-        }
+        function doAct() { msg('t2', '* You checked your LNAT goals. You feel prepared.'); }
 
-        function actAction() {
-            playSfx(300, 'sine', 0.1);
-            typeText('task-dialogue', '* You reviewed your notes.\n* Your confidence rose slightly.');
-        }
-
-        function itemAction() {
-            playSfx(300, 'sine', 0.1);
-            alert("INV: 1x Cold Coffee, 1x Half-written Essay.");
-        }
-
-        // Init
-        window.onload = () => {
-            typeText('intro-text', '* Welcome back, Qasim.\n* Oxford awaits.');
-        };
+        window.onload = () => { msg('t1', '* Welcome back, Qasim.\n* Oxford awaits.'); };
     </script>
 </body>
 </html>
